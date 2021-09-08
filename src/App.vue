@@ -1,14 +1,18 @@
 <template>
-  <RouterView />
+  <NMessageProvider>
+    <RouterView />
+  </NMessageProvider>
 </template>
 
 <script lang="ts">
   import { defineComponent } from 'vue'
   import { RouterView } from 'vue-router'
+  import { NMessageProvider } from 'naive-ui'
   export default defineComponent({
     name: 'App',
     components: {
-      RouterView
+      RouterView,
+      NMessageProvider
     }
   })
 </script>

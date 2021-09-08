@@ -51,10 +51,13 @@ request.interceptors.response.use(
    */
   (response) => {
     const res = response.data
+    if (!res || res.code !== 200) {
+      return Promise.reject(res)
+    }
     return res
   },
   (error) => {
-    console.log(error, error.message)
+    console.dir(error)
     return Promise.reject(error)
   }
 )

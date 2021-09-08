@@ -5,10 +5,11 @@ import {
   NFormItem,
   NIcon,
   NInput,
-  FormValidationError
+  FormValidationError,
+  useMessage
 } from 'naive-ui'
 import clx from 'classnames'
-import { defineComponent, reactive, ref } from 'vue'
+import { computed, defineComponent, reactive, ref } from 'vue'
 import { EyeOffOutline, IdCardOutline } from '@vicons/ionicons5'
 import { SET_USER } from '@/store/user/actionType'
 import $styles from './signin.module.less'
@@ -66,6 +67,7 @@ export default defineComponent({
   setup(props, ctx) {
     const formRef = ref()
     const router = useRouter()
+    const message = useMessage()
     const store = useStore()
     const { dispatch } = store
     const formData: FormFata = reactive({
@@ -73,18 +75,25 @@ export default defineComponent({
       password: '',
       reenteredPassword: ''
     })
-
+    const submittedData = reactive({
+      name: computed(() => formData.id),
+      password: computed(() => formData.password),
+    })
     const { request, loading, result } = useRequest('koa-api/user/signup', {
       manual: true,
       method: 'post',
-      data: formData
+      data: submittedData
     })
     const loginHandler = () => {
+      if (loading.value) return false
       formRef.value.validate((errors: FormValidationError) => {
         if (errors) return false
         request().then(res => {
           console.log('request().then', res)
           // dispatch('user/' + SET_USER, { name: formData.id })
+        }).catch((err) => {
+          console.log(err)
+          message.error(err.msg)
         })
         // router.push({ name: 'Home' })
       })

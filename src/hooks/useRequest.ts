@@ -1,6 +1,17 @@
-import axios, { AxiosError, AxiosRequestConfig, Canceler, AxiosPromise } from 'axios'
+import axios, {
+  AxiosError,
+  AxiosRequestConfig,
+  AxiosResponse,
+  Canceler
+} from 'axios'
 import { toRefs, reactive, ToRefs } from 'vue'
 import axiosIns from '../utils/request'
+
+type standardResponce =  {
+  code: number,
+  msg: string,
+  data: unknown
+}
 
 type requestState = {
   loading: boolean
@@ -19,15 +30,15 @@ type CustomOptions = {
 export const useRequest = (
   url: string,
   options: CustomOptions
-): ToRefs<requestState> & Record<'request', () => Promise<void>> => {
-
+): ToRefs<requestState> &
+  Record<'request', () => Promise<AxiosResponse<standardResponce>>> => {
   const state = reactive<requestState>({
     loading: false,
     result: null,
     cancel: null,
     error: null
   })
-  const request= ()  => {
+  const request = () => {
     state.loading = true
     return axiosIns(url, {
       ...options,
@@ -41,7 +52,7 @@ export const useRequest = (
       })
       .catch(err => {
         state.error = err
-        return err
+        return Promise.reject(err)
       })
       .finally(() => {
         state.loading = false
