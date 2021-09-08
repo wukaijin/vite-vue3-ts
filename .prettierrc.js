@@ -11,7 +11,7 @@ module.exports = {
   trailingComma: 'none', // 未尾分号
   jsxBracketSameLine: false,
   jsxSingleQuote: false,
-  arrowParens: 'always',
+  arrowParens: 'avoid', // always
   insertPragma: false,
   requirePragma: false,
   proseWrap: 'never',

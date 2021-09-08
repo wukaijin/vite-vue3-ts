@@ -10,5 +10,14 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, '/src')
     }
+  },
+  server: {
+    proxy: {
+      '/koa-api': {
+        target: 'http://localhost:3008',
+        changeOrigin: true,
+        // rewrite: path => path.replace(/^\/api/, '')
+      }
+    }
   }
 })

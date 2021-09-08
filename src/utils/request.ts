@@ -1,11 +1,11 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosPromise } from 'axios'
-import { ref, reactive, watch } from 'vue'
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
+// import { ref, reactive, watch } from 'vue'
 
 // create an axios request
 const request: AxiosInstance = axios.create({
-  baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
+  // baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 60 * 1000 // request timeout，30秒
+  timeout: 10 * 1000 // request timeout，10秒
   // transformResponse: [
   //   (data) => {
   //     // Do whatever you want to transform the data
@@ -58,16 +58,5 @@ request.interceptors.response.use(
     return Promise.reject(error)
   }
 )
-
-// interface useRequestParams {
-//   method: 'post' | 'POST'
-//   url: string
-//   data: Record<string, unknown>
-// }
-
-export const useRequest = (req: AxiosPromise): [] => {
-  console.log(req)
-  return []
-}
 
 export default request

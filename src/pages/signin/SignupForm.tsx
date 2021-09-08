@@ -14,7 +14,7 @@ import { SET_USER } from '@/store/user/actionType'
 import $styles from './signin.module.less'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-
+import { useRequest } from '@/hooks'
 type FormFata = {
   id: string
   password: string
@@ -64,100 +64,128 @@ const getRules = (formData: FormFata): FormRules => ({
 
 export default defineComponent({
   setup(props, ctx) {
+    const formRef = ref()
     const router = useRouter()
     const store = useStore()
+    const { dispatch } = store
     const formData: FormFata = reactive({
       id: '',
       password: '',
       reenteredPassword: ''
     })
-    const formRef = ref()
-    const { dispatch } = store
 
+    const { request, loading, result } = useRequest('koa-api/user/signup', {
+      manual: true,
+      method: 'post',
+      data: formData
+    })
     const loginHandler = () => {
       formRef.value.validate((errors: FormValidationError) => {
         if (errors) return false
-        // dispatch('user/' + SET_USER, { name: formData.id })
+        request().then(res => {
+          console.log('request().then', res)
+          // dispatch('user/' + SET_USER, { name: formData.id })
+        })
         // router.push({ name: 'Home' })
       })
     }
     const rules = getRules(formData)
-    return () => (
-      <div class={clx($styles.panel, $styles.signup)}>
-        <div>
-          <NForm
-            model={formData}
-            ref={formRef}
-            label-placement="left"
-            label-width="80"
-            rules={rules}
-          >
-            <NFormItem label="ID" path="id">
-              <NInput
-                value={formData.id}
-                onUpdateValue={(id) => {
-                  formData.id = id
-                }}
-                placeholder="请输入ID"
-                maxlength="32"
+    // if (!result.value) {
+    // }
+    return () => {
+      if (!result.value) {
+        return (
+          <div class={clx($styles.panel, $styles.signup)}>
+            <div>
+              <NForm
+                model={formData}
+                ref={formRef}
+                label-placement="left"
+                label-width="80"
+                rules={rules}
               >
-                {{
-                  prefix: () => (
-                    <NIcon>
-                      <IdCardOutline />
-                    </NIcon>
-                  )
-                }}
-              </NInput>
-            </NFormItem>
-            <NFormItem label="密码" path="password">
-              <NInput
-                type="password"
-                showPasswordToggle={true}
-                value={formData.password}
-                placeholder="请输入密码"
-                maxlength="32"
-                onUpdateValue={(password) => {
-                  formData.password = password
-                }}
+                <NFormItem label="ID" path="id">
+                  <NInput
+                    value={formData.id}
+                    onUpdateValue={id => {
+                      formData.id = id
+                    }}
+                    placeholder="请输入ID"
+                    maxlength="32"
+                  >
+                    {{
+                      prefix: () => (
+                        <NIcon>
+                          <IdCardOutline />
+                        </NIcon>
+                      )
+                    }}
+                  </NInput>
+                </NFormItem>
+                <NFormItem label="密码" path="password">
+                  <NInput
+                    type="password"
+                    showPasswordToggle={true}
+                    value={formData.password}
+                    placeholder="请输入密码"
+                    maxlength="32"
+                    onUpdateValue={password => {
+                      formData.password = password
+                    }}
+                  >
+                    {{
+                      prefix: () => (
+                        <NIcon>
+                          <IdCardOutline />
+                        </NIcon>
+                      )
+                    }}
+                  </NInput>
+                </NFormItem>
+                <NFormItem label="确认密码" path="reenteredPassword">
+                  <NInput
+                    type="password"
+                    showPasswordToggle={true}
+                    value={formData.reenteredPassword}
+                    placeholder="请确认密码"
+                    maxlength="32"
+                    onUpdateValue={password => {
+                      formData.reenteredPassword = password
+                    }}
+                  >
+                    {{
+                      prefix: () => (
+                        <NIcon>
+                          <IdCardOutline />
+                        </NIcon>
+                      )
+                    }}
+                  </NInput>
+                </NFormItem>
+              </NForm>
+            </div>
+            <div>
+              <NButton
+                loading={loading.value}
+                color="#fd4c5b"
+                block
+                onClick={loginHandler}
               >
-                {{
-                  prefix: () => (
-                    <NIcon>
-                      <IdCardOutline />
-                    </NIcon>
-                  )
-                }}
-              </NInput>
-            </NFormItem>
-            <NFormItem label="确认密码" path="reenteredPassword">
-              <NInput
-                type="password"
-                showPasswordToggle={true}
-                value={formData.reenteredPassword}
-                placeholder="请确认密码"
-                maxlength="32"
-                onUpdateValue={(password) => {
-                  formData.reenteredPassword = password
-                }}
-              >
-                {{
-                  prefix: () => (
-                    <NIcon>
-                      <IdCardOutline />
-                    </NIcon>
-                  )
-                }}
-              </NInput>
-            </NFormItem>
-          </NForm>
+                注册
+              </NButton>
+            </div>
+            <div>{result.value}</div>
+          </div>
+        )
+      }
+      return (
+        <div
+          class={clx($styles.panel, $styles.signup)}
+          style={{ height: '208px' }}
+        >
+          
         </div>
-        <div>
-          <NButton color="#fd4c5b" block onClick={loginHandler}>
-            注册
-          </NButton>
-        </div>
-      </div>
-    )
+      )
+    }
   }
 })
