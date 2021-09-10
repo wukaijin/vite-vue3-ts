@@ -7,32 +7,33 @@ import {
   NInput,
   FormValidationError
 } from 'naive-ui'
-import { defineComponent, reactive, ref } from 'vue'
+import { computed, defineComponent, reactive, ref } from 'vue'
 import { EyeOffOutline, IdCardOutline } from '@vicons/ionicons5'
 import { SET_USER } from '@/store/user/actionType'
 import $styles from './signin.module.less'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import { useRequest } from '@/hooks'
 
 const rules: FormRules = {
   id: [
     {
-      validator (rule, value) {
+      validator(rule, value) {
         if (!value) {
           return new Error('请输入ID')
         }
         return true
-      },
+      }
     }
   ],
   password: [
     {
-      validator (rule, value) {
+      validator(rule, value) {
         if (!value) {
           return new Error('请输入密码')
         }
         return true
-      },
+      }
     }
   ]
 }
@@ -45,18 +46,40 @@ export default defineComponent({
       id: '',
       password: ''
     })
+
+    const submitedData = reactive({
+      id: computed(() => formData.id),
+      // name: computed(() => formData.id),
+      password: computed(() => formData.password)
+    })
+
     const formRef = ref()
     const { dispatch } = store
 
+    const { request, loading  } = useRequest('koa-api/user/signin', {
+      manual: true,
+      method: 'post',
+      data: submitedData
+    })
+
     const visitHandler = () => {
+      if (loading.value) return false
       dispatch('user/' + SET_USER, { name: '游客' })
       router.push({ name: 'Home' })
     }
     const loginHandler = () => {
+      if (loading.value) return false
       formRef.value.validate((errors: FormValidationError) => {
         if (errors) return false
-        dispatch('user/' + SET_USER, { name: formData.id })
-        router.push({ name: 'Home' })
+        request()
+          .then(res => {
+            dispatch('user/' + SET_USER, { name: formData.id })
+            router.push({ name: 'Home' })
+            
+          })
+          .catch(err => {
+            console.error(err)
+          })
       })
     }
 
@@ -73,7 +96,7 @@ export default defineComponent({
             <NFormItem label="ID" path="id">
               <NInput
                 value={formData.id}
-                onUpdateValue={(id) => {
+                onUpdateValue={id => {
                   formData.id = id
                 }}
                 placeholder="请输入ID"
@@ -95,7 +118,7 @@ export default defineComponent({
                 value={formData.password}
                 placeholder="请输入密码"
                 maxlength="32"
-                onUpdateValue={(password) => {
+                onUpdateValue={password => {
                   formData.password = password
                 }}
               >
@@ -111,7 +134,7 @@ export default defineComponent({
           </NForm>
         </div>
         <div>
-          <NButton color="#fd4c5b" block onClick={loginHandler}>
+          <NButton loading={loading.value} color="#fd4c5b" block onClick={loginHandler}>
             登录
           </NButton>
         </div>

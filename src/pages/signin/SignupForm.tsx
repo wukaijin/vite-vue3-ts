@@ -10,27 +10,49 @@ import {
 } from 'naive-ui'
 import clx from 'classnames'
 import { computed, defineComponent, reactive, ref } from 'vue'
-import { EyeOffOutline, IdCardOutline } from '@vicons/ionicons5'
-import { SET_USER } from '@/store/user/actionType'
+import { IdCardOutline, MailOpenSharp } from '@vicons/ionicons5'
+// import { SET_USER } from '@/store/user/actionType'
+import Success from './Success'
 import $styles from './signin.module.less'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { useRequest } from '@/hooks'
 type FormFata = {
-  id: string
+  uid: string
+  email: string
   password: string
   reenteredPassword: string
 }
 
 const getRules = (formData: FormFata): FormRules => ({
-  id: [
+  uid: [
     {
       validator(rule, value) {
         if (!value) {
           return new Error('请输入ID')
         }
+        if (value.length < 6) {
+          return new Error('ID至少6位')
+        }
         return true
-      }
+      },
+      trigger: 'blur'
+    }
+  ],
+  email: [
+    {
+      validator(rule, value) {
+        if (!value) {
+          return new Error('请输入邮箱')
+        }
+        const reg =
+          /^[A-Za-zd0-9]+([-_.][A-Za-zd]+)*@([A-Za-zd]+[-.])+[A-Za-zd]{2,5}$/
+        if (!reg.test(value)) {
+          return new Error('请输入正确的邮箱')
+        }
+        return true
+      },
+      trigger: 'blur'
     }
   ],
   password: [
@@ -38,6 +60,9 @@ const getRules = (formData: FormFata): FormRules => ({
       validator(rule, value) {
         if (!value) {
           return new Error('请输入密码')
+        }
+        if (value.length < 6) {
+          return new Error('密码至少6位')
         }
         return true
       }
@@ -64,6 +89,7 @@ const getRules = (formData: FormFata): FormRules => ({
 })
 
 export default defineComponent({
+  emits: ['selectPanel'],
   setup(props, ctx) {
     const formRef = ref()
     const router = useRouter()
@@ -71,13 +97,15 @@ export default defineComponent({
     const store = useStore()
     const { dispatch } = store
     const formData: FormFata = reactive({
-      id: '',
+      uid: '',
+      email: '',
       password: '',
       reenteredPassword: ''
     })
     const submittedData = reactive({
-      name: computed(() => formData.id),
-      password: computed(() => formData.password),
+      uid: computed(() => formData.uid),
+      email: computed(() => formData.email),
+      password: computed(() => formData.password)
     })
     const { request, loading, result } = useRequest('koa-api/user/signup', {
       manual: true,
@@ -88,19 +116,22 @@ export default defineComponent({
       if (loading.value) return false
       formRef.value.validate((errors: FormValidationError) => {
         if (errors) return false
-        request().then(res => {
-          console.log('request().then', res)
-          // dispatch('user/' + SET_USER, { name: formData.id })
-        }).catch((err) => {
-          console.log(err)
-          message.error(err.msg)
-        })
+        request()
+          .then(res => {
+            console.log('request().then', res)
+            // dispatch('user/' + SET_USER, { name: formData.uid })
+          })
+          .catch(err => {
+            console.log(err)
+            message.error(err.msg)
+          })
         // router.push({ name: 'Home' })
       })
     }
     const rules = getRules(formData)
     // if (!result.value) {
     // }
+    console.log(ctx)
     return () => {
       if (!result.value) {
         return (
@@ -113,11 +144,11 @@ export default defineComponent({
                 label-width="80"
                 rules={rules}
               >
-                <NFormItem label="ID" path="id">
+                <NFormItem label="ID" path="uid">
                   <NInput
-                    value={formData.id}
-                    onUpdateValue={id => {
-                      formData.id = id
+                    value={formData.uid}
+                    onUpdateValue={uid => {
+                      formData.uid = uid
                     }}
                     placeholder="请输入ID"
                     maxlength="32"
@@ -126,6 +157,24 @@ export default defineComponent({
                       prefix: () => (
                         <NIcon>
                           <IdCardOutline />
+                        </NIcon>
+                      )
+                    }}
+                  </NInput>
+                </NFormItem>
+                <NFormItem label="邮箱" path="email">
+                  <NInput
+                    value={formData.email}
+                    onUpdateValue={email => {
+                      formData.email = email
+                    }}
+                    placeholder="请输入邮箱"
+                    maxlength="60"
+                  >
+                    {{
+                      prefix: () => (
+                        <NIcon>
+                          <MailOpenSharp />
                         </NIcon>
                       )
                     }}
@@ -188,12 +237,9 @@ export default defineComponent({
         )
       }
       return (
-        <div
-          class={clx($styles.panel, $styles.signup)}
-          style={{ height: '208px' }}
-        >
-          
-        </div>
+        <Success
+          onSelectPanel={(key: string) => ctx.emit('selectPanel', key)}
+        />
       )
     }
   }
