@@ -5,7 +5,8 @@ import {
   NFormItem,
   NIcon,
   NInput,
-  FormValidationError
+  FormValidationError,
+  useMessage
 } from 'naive-ui'
 import { computed, defineComponent, reactive, ref } from 'vue'
 import { EyeOffOutline, IdCardOutline } from '@vicons/ionicons5'
@@ -42,13 +43,14 @@ export default defineComponent({
   setup(props, ctx) {
     const router = useRouter()
     const store = useStore()
+    const message = useMessage()
     const formData = reactive({
       id: '',
       password: ''
     })
 
     const submitedData = reactive({
-      id: computed(() => formData.id),
+      uid: computed(() => formData.id),
       // name: computed(() => formData.id),
       password: computed(() => formData.password)
     })
@@ -78,7 +80,7 @@ export default defineComponent({
             
           })
           .catch(err => {
-            console.error(err)
+            message.error(err.msg)
           })
       })
     }

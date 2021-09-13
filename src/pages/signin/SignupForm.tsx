@@ -17,6 +17,7 @@ import $styles from './signin.module.less'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { useRequest } from '@/hooks'
+import request from '@/utils/request'
 type FormFata = {
   uid: string
   email: string
@@ -35,6 +36,23 @@ const getRules = (formData: FormFata): FormRules => ({
           return new Error('ID至少6位')
         }
         return true
+      },
+      trigger: 'blur'
+    },
+    {
+      asyncValidator(rule, value) {
+        return new Promise(async (resolve, reject) => {
+          try {
+            const result = await request('koa-api/user/isRegist', {
+              params: {
+                uid: value
+              }
+            })
+            resolve()
+          } catch (error) {
+            reject("ID已被注册")
+          }
+        })
       },
       trigger: 'blur'
     }
