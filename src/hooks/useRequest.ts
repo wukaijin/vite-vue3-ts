@@ -1,3 +1,4 @@
+import { watchEffect } from 'vue';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, {
   AxiosError,
@@ -63,6 +64,10 @@ export const useRequest = <T>(
       })
   }
   if (!options.manual) request()
+
+  watchEffect(() => {
+    if (!options.manual) request()
+  })
 
   return {
     ...toRefs(state),

@@ -15,6 +15,7 @@ import $styles from './signin.module.less'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { useRequest } from '@/hooks'
+import request from '@/utils/request'
 
 const rules: FormRules = {
   id: [
@@ -58,14 +59,15 @@ export default defineComponent({
     const formRef = ref()
     const { dispatch } = store
 
-    const { request, loading  } = useRequest('koa-api/user/signin', {
+    const { request: api, loading  } = useRequest('koa-api/user/signin', {
       manual: true,
       method: 'post',
       data: submitedData
     })
 
-    const visitHandler = () => {
+    const visitHandler = async () => {
       if (loading.value) return false
+      await request('koa-api/user/visit')
       dispatch('user/' + SET_USER, { name: '游客' })
       router.push({ name: 'Home' })
     }
@@ -73,13 +75,13 @@ export default defineComponent({
       if (loading.value) return false
       formRef.value.validate((errors: FormValidationError) => {
         if (errors) return false
-        request()
-          .then(res => {
+        api()
+          .then(() => {
             dispatch('user/' + SET_USER, { name: formData.id })
             router.push({ name: 'Home' })
             
           })
-          .catch(err => {
+          .catch((err: any) => {
             message.error(err.msg)
           })
       })
