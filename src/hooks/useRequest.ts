@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, {
   AxiosError,
   AxiosRequestConfig,
@@ -7,34 +8,37 @@ import axios, {
 import { toRefs, reactive, ToRefs } from 'vue'
 import axiosIns from '../utils/request'
 
-type standardResponce =  {
-  code: number,
-  msg: string,
+type standardResponce = {
+  code: number
+  msg: string
   data: unknown
 }
 
-type requestState = {
+interface requestState {
   loading: boolean
-  result: null | unknown
+  result: any
   cancel: Canceler | null
   error: AxiosError | null
 }
 
 // TODO 节流，防抖
-// type customOptionsKey = 'manual'
 
-type CustomOptions = {
+// type customOptionsKey = 'manual'
+type CustomOptions<T> = {
   manual?: boolean
+  defaultResult?: T | null
 } & AxiosRequestConfig
 
-export const useRequest = (
+type RequestReturn = ToRefs<requestState> &
+  Record<'request', () => Promise<AxiosResponse<standardResponce>>>
+
+export const useRequest = <T>(
   url: string,
-  options: CustomOptions
-): ToRefs<requestState> &
-  Record<'request', () => Promise<AxiosResponse<standardResponce>>> => {
+  options: CustomOptions<T> = {}
+): RequestReturn => {
   const state = reactive<requestState>({
     loading: false,
-    result: null,
+    result: options.defaultResult || null,
     cancel: null,
     error: null
   })
@@ -59,6 +63,7 @@ export const useRequest = (
       })
   }
   if (!options.manual) request()
+
   return {
     ...toRefs(state),
     request

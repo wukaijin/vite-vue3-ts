@@ -14,6 +14,7 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     redirect: (location: RouteLocation) => {
       if (location.fullPath === '/') {
+        console.log('redirect to /main/home')
         return '/main/home'
       }
       return '/404'
@@ -37,7 +38,18 @@ const routes: RouteRecordRaw[] = [
       { path: 'guide', name: 'Guide', component: () => import('@/pages/guide') }
     ]
   },
-
+  {
+    path: '/user-management',
+    meta: { auth: 'private' },
+    component: Layout,
+    children: [
+      {
+        path: 'list',
+        name: 'UserList',
+        component: () => import('@/pages/userManagement/UserList')
+      }
+    ]
+  },
   {
     path: '/:pathMatch(.*)*', // 注意此处 404页面匹配规则和以前不相同，得采用这种配置方式才行
     name: '404',
@@ -59,9 +71,10 @@ router.beforeEach(
   ) => {
     // 获取userToken，根据业务场景可由localStorage也可由cookie中获取
     const user = window.localStorage.getItem('user')
+    console.log(to, from)
     // 路由守卫判断
-    console.log(to.meta)
     if (!user && to.meta.auth) {
+      console.log('unauth')
       next({ name: 'Signin' })
       return
     }

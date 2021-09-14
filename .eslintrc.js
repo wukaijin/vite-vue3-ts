@@ -16,6 +16,7 @@ module.exports = {
   ],
   rules: {
     // '@typescript-eslint/no-explicit-any': ['off']
-    'prettier/prettier': ['off']
+    'prettier/prettier': ['off'],
+    '@typescript-eslint/ban-ts-comment': 0
   }
 }

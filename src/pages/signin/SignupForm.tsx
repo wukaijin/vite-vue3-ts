@@ -28,20 +28,14 @@ type FormFata = {
 const getRules = (formData: FormFata): FormRules => ({
   uid: [
     {
-      validator(rule, value) {
-        if (!value) {
-          return new Error('请输入ID')
-        }
-        if (value.length < 6) {
-          return new Error('ID至少6位')
-        }
-        return true
-      },
-      trigger: 'blur'
-    },
-    {
       asyncValidator(rule, value) {
         return new Promise(async (resolve, reject) => {
+          if (!value) {
+            return reject('请输入ID')
+          }
+          if (value.length < 6) {
+            return reject('ID至少6位')
+          }
           try {
             const result = await request('koa-api/user/isRegist', {
               params: {

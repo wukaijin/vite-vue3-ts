@@ -1,4 +1,4 @@
-import { NMenu, MenuOption, NIcon, MenuGroupOption } from 'naive-ui'
+import { NMenu, MenuOption, NIcon } from 'naive-ui'
 import {
   BookOutline as BookIcon,
   PersonOutline as PersonIcon,
@@ -9,14 +9,21 @@ import { defineComponent, reactive, VNodeChild } from 'vue'
 import { MenuOptionBase } from 'naive-ui/lib/menu/src/interface'
 import { VueCom } from '@/typings'
 
-const renderIcon = (Icon: VueCom): () => VNodeChild => () => <NIcon><Icon /></NIcon>
+const renderIcon =
+  (Icon: VueCom): (() => VNodeChild) =>
+  () =>
+    (
+      <NIcon>
+        <Icon />
+      </NIcon>
+    )
 
 const menuOptions: MenuOptionBase[] = [
   {
-    label: '且听风吟',
-    key: 'hear-the-wind-sing',
+    label: '用户管理',
+    key: '/user-management/list',
     icon: renderIcon(BookIcon),
-    path: '/home'
+    path: '/user-management/list'
   },
   {
     label: '1973年的弹珠玩具',
@@ -87,12 +94,15 @@ const menuOptions: MenuOptionBase[] = [
     ]
   }
 ]
-
+interface State {
+  activeKey: string | null
+  collapsed: boolean
+}
 export default defineComponent({
   name: 'Menu',
   setup() {
-    const state = reactive({
-      activeKey: 'hear-the-wind-sing',
+    const state = reactive<State>({
+      activeKey: null,
       collapsed: true
     })
     const router = useRouter()

@@ -10,15 +10,18 @@ export interface ILoginState {
   userInfo: IUser | null
 }
 
+const getInitialState = (): ILoginState => {
+  const storage = window.localStorage.getItem('user')
+  return {
+    isLogin: !!storage,
+    userInfo: storage ? JSON.parse(storage) : null
+  }
+}
+
 // Module这个类型可以传两个范型变量 第一个是当前模块state的对象接口类型 第二个是主仓库state的对象接口类型
 const LoginStore: Module<ILoginState, unknown> = {
   namespaced: true,
-  state: {
-    isLogin: true,
-    userInfo: {
-      name: ''
-    }
-  },
+  state: getInitialState(),
   getters: {},
   mutations: {
     [SET_USER](state, payload: IUser) {
