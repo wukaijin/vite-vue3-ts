@@ -82,7 +82,7 @@ export default defineComponent({
             
           })
           .catch((err: any) => {
-            message.error(err.msg)
+            message.error(err.message)
           })
       })
     }

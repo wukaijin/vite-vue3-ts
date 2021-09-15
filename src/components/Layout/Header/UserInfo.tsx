@@ -1,11 +1,12 @@
 import { defineComponent, reactive } from 'vue'
 import $styles from './userinfo.module.less'
-import { NAvatar, NIcon, NDropdown } from 'naive-ui'
+import { NAvatar, NIcon, NDropdown, useMessage } from 'naive-ui'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { SIGN_OUT } from '@/store/user/actionType'
 import { PersonSharp, LogOutOutline  } from '@vicons/ionicons5'
 import { DropdownMixedOption } from 'naive-ui/lib/dropdown/src/interface'
+import request from '@/utils/request'
 
 const options: DropdownMixedOption[] = [
   {
@@ -23,6 +24,7 @@ const UserInfo = defineComponent({
       isHover: false
     })
     const store = useStore()
+    const message = useMessage()
     const router = useRouter()
     const { state: { user }, dispatch } = store
     const methods = {
@@ -32,10 +34,15 @@ const UserInfo = defineComponent({
       onMouseleave: () => {
         state.isHover = false
       },
-      handleSelect: (key: string) => {
+      handleSelect: async (key: string) => {
         console.log('handleSelect', key)
-        dispatch('user/' + SIGN_OUT)
-        router.push('/signin')
+        try {
+          await request('koa-api/user/signout')
+          dispatch('user/' + SIGN_OUT)
+        } catch (error) {
+          message.error(error.message)
+        }
+        
       }
     }
     return () => {

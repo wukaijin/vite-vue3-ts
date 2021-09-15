@@ -67,13 +67,14 @@ export default defineComponent({
     const submitedData = reactive({
       count: computed(() => state.count)
     })
-    const { result } = useRequest<RowData[] | null>('koa-api/user/list', {
+    const { result, loading } = useRequest<RowData[] | null>('koa-api/user/list', {
       defaultResult: [],
       data: submitedData
     })
 
     watchEffect(() => {
-      state.data = result.value && result.value.data
+      const data = result.value && result.value.data
+      if(data !== state.data) state.data = data
     })
     const batchSet = () => {
       request.post('koa-api/user/batchSignup', getRandomUsers()).then(red => {
@@ -90,6 +91,7 @@ export default defineComponent({
         <NCard>
           <NDataTable
             size="small"
+            loading={loading.value}
             columns={columns}
             data={state.data}
             pagination={pagination}

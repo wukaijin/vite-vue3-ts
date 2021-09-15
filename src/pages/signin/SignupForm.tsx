@@ -135,7 +135,7 @@ export default defineComponent({
           })
           .catch(err => {
             console.log(err)
-            message.error(err.msg)
+            message.error(err.message)
           })
         // router.push({ name: 'Home' })
       })

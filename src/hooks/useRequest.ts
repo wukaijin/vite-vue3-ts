@@ -11,7 +11,7 @@ import axiosIns from '../utils/request'
 
 type standardResponce = {
   code: number
-  msg: string
+  message: string
   data: unknown
 }
 
@@ -63,7 +63,6 @@ export const useRequest = <T>(
         state.loading = false
       })
   }
-  if (!options.manual) request()
 
   watchEffect(() => {
     if (!options.manual) request()

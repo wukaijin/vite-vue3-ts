@@ -5,13 +5,14 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 const request: AxiosInstance = axios.create({
   // baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 10 * 1000 // request timeout，10秒
+  timeout: 10 * 1000, // request timeout，10秒
   // transformResponse: [
   //   (data) => {
   //     // Do whatever you want to transform the data
   //     return JSONbig.parse(data)
   //   }
   // ]
+  withCredentials: true
 })
 
 // request interceptor
